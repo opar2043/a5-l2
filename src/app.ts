@@ -4,6 +4,7 @@ import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { movieRouter } from "./module/movies/movie.route";
+import { reviewRouter } from "./module/reviews/review.route";
 
 const app: Application = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api", movieRouter);
+app.use("/api", reviewRouter);
 
 
 app.get("/", (req, res) => {

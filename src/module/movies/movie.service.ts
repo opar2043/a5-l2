@@ -2,12 +2,9 @@ import { prisma } from "../../lib/prisma";
 
 
 
-const createmovie = async (payload: any , id : string) => {
+const createmovie = async (payload: any ) => {
   const result = await prisma.movie.create({
-    data: {
-      ...payload,
-      providerId : id
-    }
+    data: payload
   });
   return result;
 };

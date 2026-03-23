@@ -3,15 +3,9 @@ import { movieService } from "./movie.service";
 
 const createmovie: RequestHandler = async (req, res, next) => {
   try {
-    const user = req.user;
-    console.log(user , "from controler");
-    if(!user){
-      return res.status(400).json({
-        error: "You are not authorize"
-      })
-    };
 
-    const result = await movieService.createmovie(req.body , user.id as string);
+   const body = req.body;
+    const result = await movieService.createmovie(body);
 
     res.status(201).json({
       success: true,
