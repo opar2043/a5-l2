@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import type { reviewType } from "./review.types";
 
 const createReview = async (payload : reviewType) => {
+  console.log(payload);
   const result = await prisma.review.create({
     data: payload,
   });
