@@ -28,6 +28,7 @@ const navLinks = [
 
   },
   { label: "Contact", href: "/contact" },
+  { label: "Dashboard", href: "/dashboard" },
 ];
 
 export default function Navbar() {
