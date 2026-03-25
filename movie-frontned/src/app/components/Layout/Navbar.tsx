@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, User, Menu, X, ChevronDown, Film } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/app/components/lib/utils";
 
 const navLinks = [
   {
@@ -25,7 +25,6 @@ const navLinks = [
   {
     label: "About",
     href: "/about",
-
   },
   { label: "Contact", href: "/contact" },
   { label: "Dashboard", href: "/dashboard" },
@@ -52,7 +51,7 @@ export default function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           "bg-slate-950 border-b border-slate-800",
-          isScrolled ? "shadow-[0_4px_30px_rgba(0,0,0,0.6)]" : ""
+          isScrolled ? "shadow-[0_4px_30px_rgba(0,0,0,0.6)]" : "",
         )}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,9 +61,7 @@ export default function Navbar() {
               <div className="w-9 h-9 rounded-full bg-[#D96C2C] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
                 <Film className="w-5 h-5 text-white" strokeWidth={2.2} />
               </div>
-              <span className="text-white font-bold text-xl ">
-                Movies OK
-              </span>
+              <span className="text-white font-bold text-xl ">Movies OK</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -73,14 +70,16 @@ export default function Navbar() {
                 <li
                   key={link.label}
                   className="relative"
-                  onMouseEnter={() => link.children && setActiveDropdown(link.label)}
+                  onMouseEnter={() =>
+                    link.children && setActiveDropdown(link.label)
+                  }
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
                   <Link
                     href={link.href}
                     className={cn(
                       "flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150",
-                      "text-slate-300 hover:text-white hover:bg-slate-800"
+                      "text-slate-300 hover:text-white hover:bg-slate-800",
                     )}
                   >
                     {link.label}
@@ -88,7 +87,7 @@ export default function Navbar() {
                       <ChevronDown
                         className={cn(
                           "w-3.5 h-3.5 text-slate-400 transition-transform duration-200",
-                          activeDropdown === link.label ? "rotate-180" : ""
+                          activeDropdown === link.label ? "rotate-180" : "",
                         )}
                       />
                     )}
@@ -154,7 +153,7 @@ export default function Navbar() {
                     onClick={() =>
                       link.children
                         ? setMobileExpanded(
-                            mobileExpanded === link.label ? null : link.label
+                            mobileExpanded === link.label ? null : link.label,
                           )
                         : setMobileOpen(false)
                     }
@@ -170,7 +169,7 @@ export default function Navbar() {
                       <ChevronDown
                         className={cn(
                           "w-4 h-4 text-slate-400 transition-transform duration-200",
-                          mobileExpanded === link.label ? "rotate-180" : ""
+                          mobileExpanded === link.label ? "rotate-180" : "",
                         )}
                       />
                     )}

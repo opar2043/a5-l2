@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/app/components/lib/utils";
 import { FaFacebook, FaTwitter } from "react-icons/fa";
 interface Slide {
   id: number;
@@ -23,7 +23,8 @@ const slides: Slide[] = [
     subtitle: "Writen and Directed by James / United Kingdom 2024",
     releaseLabel: "Coming in",
     releaseDate: "April 2024",
-    bgImage: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1600&q=80",
+    bgImage:
+      "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1600&q=80",
     bgColor: "#0f172a",
   },
   {
@@ -33,7 +34,8 @@ const slides: Slide[] = [
     subtitle: "Directed by Elena Vasquez / United States 2024",
     releaseLabel: "Coming in",
     releaseDate: "June 2024",
-    bgImage: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=80",
+    bgImage:
+      "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1600&q=80",
     bgColor: "#0c0a09",
   },
   {
@@ -43,7 +45,8 @@ const slides: Slide[] = [
     subtitle: "Written and Directed by Chen Wei / Japan 2024",
     releaseLabel: "Coming in",
     releaseDate: "August 2024",
-    bgImage: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1600&q=80",
+    bgImage:
+      "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1600&q=80",
     bgColor: "#0a0f1e",
   },
 ];
@@ -63,7 +66,7 @@ export default function Banner() {
         setAnimating(false);
       }, 500);
     },
-    [animating]
+    [animating],
   );
 
   const prev = () => {
@@ -92,7 +95,7 @@ export default function Banner() {
           key={s.id}
           className={cn(
             "absolute inset-0 transition-opacity duration-700",
-            i === current ? "opacity-100" : "opacity-0"
+            i === current ? "opacity-100" : "opacity-0",
           )}
         >
           {/* Image */}
@@ -147,7 +150,7 @@ export default function Banner() {
       <div
         className={cn(
           "absolute top-10 right-10 z-20 text-right transition-all duration-500",
-          animating ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
+          animating ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0",
         )}
       >
         <p className="text-slate-300 text-sm font-medium tracking-wide">
@@ -169,7 +172,7 @@ export default function Banner() {
                 ? direction === "right"
                   ? "opacity-0 -translate-x-8"
                   : "opacity-0 translate-x-8"
-                : "opacity-100 translate-x-0"
+                : "opacity-100 translate-x-0",
             )}
           >
             {/* Genre */}
@@ -181,8 +184,10 @@ export default function Banner() {
             </p>
 
             {/* Title */}
-            <h1 className="text-white font-black leading-none tracking-tight mb-4"
-              style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}>
+            <h1
+              className="text-white font-black leading-none tracking-tight mb-4"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
+            >
               {slide.title}
             </h1>
 
@@ -207,7 +212,7 @@ export default function Banner() {
               "transition-all duration-300 rounded-full",
               i === current
                 ? "w-8 h-2 bg-[#D96C2C]"
-                : "w-2 h-2 bg-slate-500 hover:bg-slate-300"
+                : "w-2 h-2 bg-slate-500 hover:bg-slate-300",
             )}
           />
         ))}

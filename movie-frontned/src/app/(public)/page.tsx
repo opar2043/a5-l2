@@ -1,6 +1,6 @@
-import Banner from "@/components/Layout/Banner";
+import Banner from "@/src/app/components/Layout/Banner";
 
-import GetToKnowUs from "@/components/Layout/Gettoknowus";
+import GetToKnowUs from "@/src/app/components/Layout/Gettoknowus";
 import AboutPage from "./about/page";
 
 export default function Home() {

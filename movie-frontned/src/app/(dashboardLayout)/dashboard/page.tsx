@@ -1,6 +1,6 @@
 "use client";
 
-import DashboardNavigation from "@/components/Layout/DashboardNavigation";
+import DashboardNavigation from "@/src/app/components/Layout/DashboardNavigation";
 import { useState } from "react";
 
 import { FiMenu } from "react-icons/fi";
@@ -37,9 +37,7 @@ const DashboardShell = ({ children }: { children: React.ReactNode }) => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 p-8 md:ml-0">
-          {children}
-        </div>
+        <div className="flex-1 p-8 md:ml-0">{children}</div>
       </div>
     </div>
   );
