@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------
+// Enums
+// -----------------------------
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Pricing {
+  FREE
+  PREMIUM
+}
+
+enum PurchaseType {
+  RENT
+  BUY
+}
+
+
+// -----------------------------
+// Auth Models (BetterAuth)
+// -----------------------------
+
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  role          Role     @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+
+  movie Movie[]
+  sessions Session[]
+  accounts Account[]
+  purchases Purchase[]
+
+  @@map("users")
+}
+
+
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String   @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id           String   @id @default(cuid())
+  userId       String
+  accountId    String
+  providerId   String // ✅ MUST (Better Auth needs this)
+  password     String? // for credentials login
+  accessToken  String?
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("accounts")
+}
+
+// -----------------------------
+// Main Portal Models
+// -----------------------------
+
+model Movie {
+  id                 String   @id @default(cuid())
+  title              String
+  synopsis           String?
+  releaseYear        Int?
+  director           String?
+  cast               String? // comma-separated names
+  streamingPlatforms String[] // ["Netflix", "Disney+"]
+  pricing            Pricing  @default(FREE)
+  posterUrl          String?
+  trailerUrl         String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  userId String
+  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade)
+
+  reviews   Review[]
+  purchases Purchase[]
+
+  @@map("movies")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  movieId   String
+  userName  String 
+  rating    Int 
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  @@map("reviews")
+}
+
+model Purchase {
+  id           String       @id @default(cuid())
+  userId       String
+  movieId      String
+  purchaseType PurchaseType
+  price        Float
+  expiresAt    DateTime? // for rentals
+  createdAt    DateTime     @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  movie Movie @relation(fields: [movieId], references: [id])
+
+  @@map("purchase")
+}
+
