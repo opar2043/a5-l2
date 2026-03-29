@@ -9,6 +9,7 @@ export default function Home() {
       <Banner />
       <GetToKnowUs></GetToKnowUs>
       <AboutPage />
+      
     </div>
   );
 }

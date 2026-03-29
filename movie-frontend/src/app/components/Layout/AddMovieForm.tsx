@@ -1,46 +1,84 @@
-import React from "react";
+'use client'
 import { moviesRoute } from "@/src/app/components/service/movie";
 import { Clapperboard, Calendar, Users, ListVideo, Link as LinkIcon, DollarSign } from "lucide-react";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { toast } from "sonner";
 
 export default function AddMovieForm() {
   
-  async function createMovieAction(formData: FormData) {
-    "use server";
+  // async function createMovieAction(formData: FormData) {
+  //   "use server";
     
-    // In a real implementation you'd grab user.id from verified `auth_session` cookie
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("auth_session")?.value || "admin-fallback";
+  //   // In a real implementation you'd grab user.id from verified `auth_session` cookie
+  //   const cookieStore = await cookies();
+  //   const userId = cookieStore.get("auth_session")?.value || "admin-fallback";
 
-    // Reconstruct data cleanly
-    const rawReleaseYear = formData.get("releaseYear") as string;
-    const rawStreaming = formData.get("streamingPlatforms") as string;
+  //   // Reconstruct data cleanly
+  //   const rawReleaseYear = formData.get("releaseYear") as string;
+  //   const rawStreaming = formData.get("streamingPlatforms") as string;
 
-    const formattedData = {
-      userId,
-      title: formData.get("title") as string,
-      synopsis: formData.get("synopsis") as string,
-      releaseYear: rawReleaseYear ? Number(rawReleaseYear) : undefined,
-      director: formData.get("director") as string,
-      cast: formData.get("cast") as string,
-      streamingPlatforms: rawStreaming ? rawStreaming.split(",").map((p) => p.trim()).filter(Boolean) : [],
-      pricing: formData.get("pricing") as string || "FREE",
-      posterUrl: formData.get("posterUrl") as string,
-      trailerUrl: formData.get("trailerUrl") as string,
-    };
+  //   const formattedData = {
+  //     userId,
+  //     title: formData.get("title") as string,
+  //     synopsis: formData.get("synopsis") as string,
+  //     releaseYear: rawReleaseYear ? Number(rawReleaseYear) : undefined,
+  //     director: formData.get("director") as string,
+  //     cast: formData.get("cast") as string,
+  //     streamingPlatforms: rawStreaming ? rawStreaming.split(",").map((p) => p.trim()).filter(Boolean) : [],
+  //     pricing: formData.get("pricing") as string || "FREE",
+  //     posterUrl: formData.get("posterUrl") as string,
+  //     trailerUrl: formData.get("trailerUrl") as string,
+  //   };
 
-    try {
-      await moviesRoute.createMovies(formattedData);
-    } catch (error) {
-       console.error("Failed to create movie:", error);
-       // Return error to UI in production
-    }
+  //   try {
+  //     await moviesRoute.createMovies(formattedData);
+  //   } catch (error) {
+  //      console.error("Failed to create movie:", error);
+  //      // Return error to UI in production
+  //   }
 
-    // Safely redirect out to the Catalog
-    redirect("/dashboard/admin/all-movies");
+  //   // Safely redirect out to the Catalog
+  //   redirect("/dashboard/admin/all-movies");
+  // }
+
+
+  async function createMovieAction(e : any){
+     e.preventDefault();
+     const frm = e.target;
+     const title = frm.title.value;
+     const synopsis = frm.synopsis.value;
+     const releaseYear = parseInt(frm.releaseYear.value);
+     const director = frm.director.value;
+     const cast = frm.cast.value;
+    const streamingPlatforms = frm.streamingPlatforms.value
+  .split(",")
+  .map((item: string) => item.trim())
+  .filter(Boolean);
+     const pricing = frm.pricing.value;
+     const posterUrl = frm.posterUrl.value;
+     const trailerUrl = frm.trailerUrl.value;
+     const movie = {
+      title,
+      synopsis,
+      releaseYear,
+      director,
+      cast,
+      streamingPlatforms,
+      pricing,
+      posterUrl,
+      trailerUrl,
+     };
+     console.log(movie);
+
+     try {
+      const response = await moviesRoute.createMovies(movie);
+      console.log(response);
+      toast.success("Movie added successfully");
+     } catch (error : any) {
+      console.log(error);
+      toast.error(error.message || "Failed to add movie");
+     }
+    //  redirect("/dashboard/admin/all-movies");
   }
-
   return (
     <div className="bg-white border border-gray-200 rounded-md p-6 sm:p-8 shadow-sm w-full max-w-4xl mx-auto text-black">
       <div className="mb-8">
@@ -51,7 +89,7 @@ export default function AddMovieForm() {
         <p className="text-gray-500">Fill out the details to add a new movie to the CineVerse catalog.</p>
       </div>
 
-      <form action={createMovieAction} className="space-y-6">
+      <form onSubmit={createMovieAction} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
           <div className="space-y-2 md:col-span-2">
@@ -176,4 +214,4 @@ export default function AddMovieForm() {
     </div>
   );
 }
-
+

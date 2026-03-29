@@ -85,12 +85,13 @@ export default async function AllMoviesPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button 
+                        <Link
+                          href={`/dashboard/admin/all-movies/${movie.id}`}
                           className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                           title="Edit Movie"
                         >
                           <Edit className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <form action={deleteMovieAction} className="inline-block">
                           <input type="hidden" name="id" value={movie.id} />
                           <button 

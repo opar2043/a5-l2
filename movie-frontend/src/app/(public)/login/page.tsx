@@ -1,44 +1,45 @@
+'use client'
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import api from "@/src/app/components/service/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { authClient } from "@/src/lib/auth-client";
 
 export default function LoginPage() {
 
-  async function loginAction(formData: FormData) {
-    "use server";
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+  const router = useRouter();
 
-    try {
-      // Since the custom Express backend doesn't have a /login route yet, 
-      // we securely fetch users directly on the Next.js server to verify the login
-      const res = await api.get("/users");
-      const users = res.data?.data || [];
-      
-      const user = users.find((u: any) => u.email === email && u.password === password);
+  async function loginAction(e : any){
+    e.preventDefault();
 
-      if (user) {
-        // Issue secure HTTP-only cookie via Next.js directly
-        const cookieStore = await cookies();
-        cookieStore.set("auth_session", user.id, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/"
-        });
-      } else {
-        console.error("Invalid credentials.");
-        return; // In production return an error string to UI
-      }
-    } catch (error) {
-      console.error("Login verification failed", error);
-      return;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    const users ={
+      email,
+      password
     }
+     console.log(users)
 
-    // Success, redirect safely to Admin interface
-    redirect("/dashboard/admin");
+     try {
+
+      const { data, error } = await authClient.signIn.email({
+        email: users.email,
+        password: users.password,
+        callbackURL: "/login"
+      });
+
+      if (error) {
+        toast.error(error.message || "Failed to register");
+        return;
+      }
+
+      toast.success("User Login successfully");
+      router.push("/dashboard/admin");
+     } catch (error : any) {
+      console.log(error);
+      toast.error(error.message || "Something went wrong");
+     } 
   }
 
   return (
@@ -49,7 +50,7 @@ export default function LoginPage() {
           <p className="text-gray-500">Sign in to your CineVerse account.</p>
         </div>
 
-        <form action={loginAction} className="space-y-5">
+        <form onSubmit={loginAction} className="space-y-5">
           {/* Email Field */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Email Address</label>

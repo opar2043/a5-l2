@@ -1,3 +1,4 @@
+import { MOVIE } from "../types/movies.type";
 import api from "./api"
 
 const getMovies = async()=> {
@@ -15,12 +16,12 @@ const deleteMovies = async(id : string)=> {
      const res = data.data;
      return res
 }
-const updateMovies = async(id : string, payload?: any)=> {
+const updateMovies = async(id : string, payload?: MOVIE)=> {
     const data = await api.patch(`/movies/${id}`, payload)
      const res = data.data;
      return res
 }
-const createMovies = async(payload: any)=> {
+const createMovies = async(payload: MOVIE)=> {
     const data = await api.post('/movies', payload)
      const res = data.data;
      return res

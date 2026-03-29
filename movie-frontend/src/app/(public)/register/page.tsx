@@ -1,26 +1,68 @@
+'use client'
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import api from "@/src/app/components/service/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { authClient } from "@/src/lib/auth-client";
 
 export default function RegisterPage() {
   
-  async function registerAction(formData: FormData) {
-    "use server";
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+  // async function registerAction(formData: FormData) {
+  //   "use server";
+  //   const name = formData.get("name") as string;
+  //   const email = formData.get("email") as string;
+  //   const password = formData.get("password") as string;
     
-    try {
-      // Direct pass-through to custom backend logic
-      await api.post("/users", { name, email, password });
-    } catch (error) {
-       console.error("Failed to register", error);
-       // In a production app you'd return the error to the form state
+  //   try {
+  //     // Direct pass-through to custom backend logic
+  //     await api.post("/users", { name, email, password });
+  //   } catch (error) {
+  //      console.error("Failed to register", error);
+  //      // In a production app you'd return the error to the form state
+  //   }
+    
+  //   // Redirect to login upon successful creation
+  //   redirect("/login");
+  // }
+
+  const router = useRouter();
+
+  async function registerAction(e : any){
+    e.preventDefault();
+
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    const users ={
+      name,
+      email,
+      password
     }
-    
-    // Redirect to login upon successful creation
-    redirect("/login");
+     console.log(users)
+
+     try {
+      // const res = await api.post("/users", users);
+      // console.log(res.data);
+
+      const { data, error } = await authClient.signUp.email({
+        email: users.email,
+        password: users.password,
+        name: users.name,
+        callbackURL: "/login"
+      });
+
+      if (error) {
+        toast.error(error.message || "Failed to register");
+        return;
+      }
+
+      toast.success("User registered successfully");
+      router.push("/login");
+     } catch (error : any) {
+      console.log(error);
+      toast.error(error.message || "Something went wrong");
+     } 
   }
 
   return (
@@ -31,7 +73,7 @@ export default function RegisterPage() {
           <p className="text-gray-500">Enter your info to join the CineVerse.</p>
         </div>
 
-        <form action={registerAction} className="space-y-5">
+        <form onSubmit={registerAction} className="space-y-5">
           {/* Name Field */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Name</label>

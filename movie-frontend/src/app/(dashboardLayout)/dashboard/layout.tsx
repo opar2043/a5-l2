@@ -37,7 +37,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className="bg-white text-black min-h-screen font-sans antialiased overflow-hidden">
         <div className="flex h-screen w-full">
           {/* Sidebar */}

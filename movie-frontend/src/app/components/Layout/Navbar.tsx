@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, User, Menu, X, ChevronDown, Film } from "lucide-react";
+import { Search, User, Menu, X, ChevronDown, Film, LogOut, LayoutDashboard } from "lucide-react";
 import { cn } from "@/src/app/components/lib/utils";
+import { useSession, signOut } from "@/src/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const navLinks = [
   {
@@ -27,14 +30,16 @@ const navLinks = [
     href: "/about",
   },
   { label: "Contact", href: "/contact" },
-  { label: "Dashboard", href: "/dashboard" },
 ];
 
 export default function Navbar() {
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -42,9 +47,23 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Logged out successfully");
+            router.push("/login");
+          },
+        },
+      });
+    } catch (error) {
+      toast.error("Failed to logout");
+    }
+  };
+
   return (
     <>
-      {/* Spacer so content doesn't hide under sticky navbar */}
       <div className="h-[72px]" />
 
       <header
@@ -119,12 +138,61 @@ export default function Navbar() {
               >
                 <Search className="w-5 h-5" />
               </button>
-              <Link
-                href={"/login"}
-                className="p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition-colors duration-150"
-              >
-                <User className="w-5 h-5" />
-              </Link>
+
+              {isPending ? (
+                <div className="w-9 h-9 rounded-full bg-slate-800 animate-pulse mx-2" />
+              ) : session ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-2 p-1 pl-3 pr-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700 group"
+                  >
+                    <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors max-w-[80px] truncate">
+                      {session.user.name.split(' ')[0]}
+                    </span>
+                    <div className="w-7 h-7 rounded-full bg-[#D96C2C] flex items-center justify-center text-white text-[10px] font-bold">
+                      {session.user.name[0].toUpperCase()}
+                    </div>
+                  </button>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 text-slate-900">
+                      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                        <p className="text-sm font-bold text-gray-900 truncate">{session.user.name}</p>
+                        <p className="text-[11px] text-gray-500 truncate">{session.user.email}</p>
+                      </div>
+                      
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-gray-400" />
+                        Dashboard
+                      </Link>
+                      
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 mt-1"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 bg-[#D96C2C] hover:bg-[#b85b25] text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-[#D96C2C]/20 transition-all transform active:scale-95"
+                >
+                  <User className="w-4 h-4" />
+                  Sign In
+                </Link>
+              )}
 
               {/* Mobile menu toggle */}
               <button
@@ -192,6 +260,18 @@ export default function Navbar() {
                   )}
                 </li>
               ))}
+              
+              {session && (
+                <li className="mt-4 pt-4 border-t border-slate-800">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-red-400 hover:bg-red-500/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         )}
