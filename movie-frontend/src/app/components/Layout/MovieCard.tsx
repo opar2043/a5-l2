@@ -9,7 +9,7 @@ type Props = {
 
 export default function MovieCard({ m }: Props) {
   return (
-    <div className="w-64 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+    <div className=" bg-white rounded-md shadow-md overflow-hidden hover:shadow-lg transition">
       
       {/* Image */}
       <div className="h-48 bg-gray-200">

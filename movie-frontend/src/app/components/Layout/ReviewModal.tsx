@@ -15,6 +15,8 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
+  const [isSpoiler, setIsSpoiler] = useState(false);
+  const [tags, setTags] = useState("");
   const [loading, setLoading] = useState(false);
 
   // ESC key close modal
@@ -30,6 +32,8 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
   const resetForm = () => {
     setContent("");
     setRating(5);
+    setIsSpoiler(false);
+    setTags("");
     setIsOpen(false);
   };
 
@@ -49,13 +53,19 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
     try {
       setLoading(true);
 
+      const tagArray = tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
+
       await reviewRoute.createReview({
         movieId,
         rating,
         content,
+        isSpoiler,
+        tags: tagArray,
+        userId: session.user.id,
+        userName: session.user.name || "Anonymous",
       });
 
-      toast.success("Review submitted successfully!");
+      toast.success("Review submitted! It will be visible after admin approval.");
 
       resetForm();
 
@@ -104,46 +114,49 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl relative text-black animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl relative text-black animate-in fade-in zoom-in duration-200">
             
             {/* Close Button */}
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
 
             {/* Header */}
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Share Your Thoughts
+              <h2 className="text-3xl font-extrabold text-gray-900 border-b-4 border-[#D96C2C] w-fit pb-1 mb-2">
+                Share Your Review
               </h2>
-              <p className="text-gray-500">
-                Your feedback helps others discover great movies!
+              <p className="text-gray-500 font-medium">
+                Help others by sharing your honest opinion.
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               
               {/* Rating */}
-              <div className="text-center space-y-3">
-                <label className="text-sm font-semibold text-gray-700 block text-left">
-                  Your Rating
-                </label>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                    Your Rating
+                  </label>
+                  <span className="text-2xl font-black text-[#D96C2C]">{rating}/10</span>
+                </div>
 
-                <div className="flex justify-center gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
+                <div className="flex justify-between gap-1 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                     <button
                       key={star}
                       type="button"
                       aria-label={`Rate ${star} star`}
                       onClick={() => setRating(star)}
-                      className="transition-transform hover:scale-110"
+                      className="transition-all hover:scale-125 focus:outline-none"
                     >
                       <Star
-                        className={`w-10 h-10 ${
+                        className={`w-6 h-6 ${
                           star <= rating
                             ? "fill-yellow-400 text-yellow-400"
                             : "text-gray-300"
@@ -154,18 +167,46 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
                 </div>
               </div>
 
+              {/* Tags */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                  Movie Tags
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Classic, Must Watch, Visual Masterpiece"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-[#D96C2C] focus:ring-4 focus:ring-[#D96C2C]/10 rounded-xl px-4 py-3 outline-none transition-all"
+                />
+              </div>
+
               {/* Review Text */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">
                   Detailed Review
                 </label>
 
                 <textarea
-                  placeholder="What did you think of the story, acting, and visuals?"
+                  placeholder="Tell us more about the plot, characters, and direction..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-[#D96C2C] focus:ring-2 focus:ring-[#D96C2C]/20 rounded-xl p-4 min-h-[150px] outline-none"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-[#D96C2C] focus:ring-4 focus:ring-[#D96C2C]/10 rounded-xl p-4 min-h-[120px] outline-none transition-all resize-none"
                 />
+              </div>
+
+              {/* Spoiler Toggle */}
+              <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                <input 
+                  type="checkbox" 
+                  id="spoiler" 
+                  checked={isSpoiler}
+                  onChange={(e) => setIsSpoiler(e.target.checked)}
+                  className="w-5 h-5 accent-[#D96C2C] cursor-pointer"
+                />
+                <label htmlFor="spoiler" className="text-sm font-bold text-orange-900 cursor-pointer select-none">
+                  Contains Spoilers? (Will be hidden initially)
+                </label>
               </div>
 
               {/* Buttons */}
@@ -174,7 +215,7 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
                 <button
                   type="submit"
                   disabled={loading || !content.trim()}
-                  className="w-full py-4 bg-[#D96C2C] hover:bg-[#b85b25] disabled:bg-gray-400 text-white rounded-xl font-bold flex justify-center items-center gap-2"
+                  className="w-full py-4 bg-[#D96C2C] hover:bg-[#b85b25] disabled:bg-gray-400 text-white rounded-2xl font-black text-lg transition-all shadow-xl shadow-orange-100 flex justify-center items-center gap-2 active:scale-95"
                 >
                   {loading ? (
                     <>
@@ -182,7 +223,7 @@ export default function ReviewModal({ movieId }: { movieId: string }) {
                       Submitting...
                     </>
                   ) : (
-                    "Submit Review"
+                    "SUBMIT REVIEW"
                   )}
                 </button>
 

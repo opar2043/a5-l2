@@ -1,20 +1,11 @@
 import React from "react";
-import { Trash2, User as UserIcon, Calendar } from "lucide-react";
+import { User as UserIcon, Calendar } from "lucide-react";
 import { userRoute } from "@/src/app/components/service/users";
-import { revalidatePath } from "next/cache";
+import UserActions from "@/src/app/components/Layout/UserActions";
 
 export default async function UsersPage() {
   const responseData = await userRoute.getUsers();
   const users = Array.isArray(responseData) ? responseData : responseData?.data || [];
-
-  async function deleteUserAction(formData: FormData) {
-    "use server";
-    const id = formData.get("id") as string;
-    if (id) {
-      await userRoute.deleteUser(id);
-      revalidatePath("/dashboard/admin/users");
-    }
-  }
 
   return (
     <div className="w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-500 text-black">
@@ -36,13 +27,14 @@ export default async function UsersPage() {
                 <th className="px-6 py-4">User</th>
                 <th className="px-6 py-4">Email</th>
                 <th className="px-6 py-4">Joined At</th>
+                <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     No users found.
                   </td>
                 </tr>
@@ -70,17 +62,19 @@ export default async function UsersPage() {
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
                       </div>
                     </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-blue-100 text-blue-700 border border-blue-200'
+                      }`}>
+                        {user.role || 'USER'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-right">
-                      <form action={deleteUserAction} className="inline-block">
-                        <input type="hidden" name="id" value={user.id} />
-                        <button 
-                          type="submit"
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors inline-flex"
-                          title="Delete User"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </form>
+                      <UserActions 
+                        userId={user.id} 
+                        userName={user.name || "Unknown"} 
+                        currentRole={user.role || "USER"} 
+                      />
                     </td>
                   </tr>
                 ))
@@ -91,4 +85,4 @@ export default async function UsersPage() {
       </div>
     </div>
   );
-}
+}

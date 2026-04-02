@@ -4,11 +4,15 @@ export interface ReviewPayload {
   movieId: string;
   rating: number;
   content: string;
+  isSpoiler?: boolean;
+  tags?: string[];
+  userId?: string;
+  userName?: string;
 }
 
 // ✅ Get all reviews
-const getReview = async () => {
-  const res = await api.get("/reviews");
+const getReview = async (isAdmin: boolean = false) => {
+  const res = await api.get(`/reviews?admin=${isAdmin}`);
   return res.data;
 };
 
@@ -30,9 +34,15 @@ const updateReview = async (id: string, payload: Partial<ReviewPayload>) => {
   return res.data;
 };
 
+// ✅ Update review status (Admin only)
+const updateReviewStatus = async (id: string, status: string) => {
+  const res = await api.patch(`/reviews/${id}/status`, { status });
+  return res.data;
+};
+
 // ✅ Delete review
-const deleteReview = async (id: string) => {
-  const res = await api.delete(`/reviews/${id}`);
+const deleteReview = async (id: string, userId?: string, isAdmin: boolean = false) => {
+  const res = await api.delete(`/reviews/${id}?admin=${isAdmin}`, { data: { userId } });
   return res.data;
 };
 
@@ -41,5 +51,6 @@ export const reviewRoute = {
   getSingleReview,
   createReview,
   updateReview,
+  updateReviewStatus,
   deleteReview,
 };

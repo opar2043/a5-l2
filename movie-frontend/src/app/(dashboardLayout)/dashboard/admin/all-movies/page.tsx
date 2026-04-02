@@ -1,21 +1,12 @@
 import React from "react";
 import { moviesRoute } from "@/src/app/components/service/movie";
-import { Trash2, Edit, Film, Calendar } from "lucide-react";
+import { Edit, Film, Calendar } from "lucide-react";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
+import DeleteMovieButton from "@/src/app/components/Layout/DeleteMovieButton";
 
 export default async function AllMoviesPage() {
   const responseData = await moviesRoute.getMovies();
   const movies = Array.isArray(responseData) ? responseData : responseData?.data || [];
-
-  async function deleteMovieAction(formData: FormData) {
-    "use server";
-    const id = formData.get("id") as string;
-    if (id) {
-      await moviesRoute.deleteMovies(id);
-      revalidatePath("/dashboard/admin/all-movies");
-    }
-  }
 
   return (
     <div className="w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-500 text-black">
@@ -92,16 +83,7 @@ export default async function AllMoviesPage() {
                         >
                           <Edit className="w-4 h-4" />
                         </Link>
-                        <form action={deleteMovieAction} className="inline-block">
-                          <input type="hidden" name="id" value={movie.id} />
-                          <button 
-                            type="submit"
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                            title="Delete Movie"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
+                        <DeleteMovieButton id={movie.id} movieTitle={movie.title} />
                       </div>
                     </td>
                   </tr>

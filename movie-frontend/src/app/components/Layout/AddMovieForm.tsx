@@ -70,12 +70,12 @@ export default function AddMovieForm() {
      console.log(movie);
 
      try {
-      const response = await moviesRoute.createMovies(movie);
+      const response = await moviesRoute.createMovies(movie as any);
       console.log(response);
       toast.success("Movie added successfully");
-     } catch (error : any) {
-      console.log(error);
-      toast.error(error.message || "Failed to add movie");
+     } catch (error: any) {
+      console.error("Add movie error:", error);
+      toast.error(error.response?.data?.message || error.message || "Failed to add movie");
      }
     //  redirect("/dashboard/admin/all-movies");
   }

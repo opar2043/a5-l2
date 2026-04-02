@@ -7,13 +7,13 @@ export default async function MoviesPage() {
   const movies = await moviesRoute.getMovies();
 
   return (
-    <div className="p-6">
+    <div className="p-6 md:p-12">
       
       {/* Heading */}
       <h1 className="text-2xl font-bold mb-6">All Movies</h1>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4   gap-6">
         {movies?.map((m: MOVIE) => (
           <MovieCard key={m.id} m={m} />
         ))}

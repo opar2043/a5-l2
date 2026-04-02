@@ -64,8 +64,8 @@ export default function EditMovieForm({ id }: { id: string }) {
       console.log(response);
       toast.success("Movie updated successfully");
     } catch (error: any) {
-      console.log(error);
-      toast.error(error.message || "Failed to update movie");
+      console.error("Update movie error:", error);
+      toast.error(error.response?.data?.message || error.message || "Failed to update movie");
     }
   }
 

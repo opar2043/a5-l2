@@ -60,8 +60,8 @@ export default function RegisterPage() {
       toast.success("User registered successfully");
       router.push("/login");
      } catch (error : any) {
-      console.log(error);
-      toast.error(error.message || "Something went wrong");
+      console.error("Register error:", error);
+      toast.error(error.response?.data?.message || error.message || "Something went wrong");
      } 
   }
 

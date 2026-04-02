@@ -30,15 +30,15 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error(error.message || "Failed to register");
+        toast.error(error.message || "Failed to sign in");
         return;
       }
 
       toast.success("User Login successfully");
       router.push("/dashboard/admin");
      } catch (error : any) {
-      console.log(error);
-      toast.error(error.message || "Something went wrong");
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.message || error.message || "Something went wrong");
      } 
   }
 
