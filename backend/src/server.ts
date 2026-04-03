@@ -10,6 +10,8 @@ async function main() {
             console.log(`Server is running on http://localhost:${PORT}`);
         });
 
+    
+
     } catch (error) {
         console.error("An error occurred:", error);
     }

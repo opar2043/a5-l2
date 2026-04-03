@@ -25,6 +25,12 @@ enum PurchaseType {
   BUY
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 
 // -----------------------------
 // Auth Models (BetterAuth)
@@ -45,6 +51,8 @@ model User {
   sessions Session[]
   accounts Account[]
   purchases Purchase[]
+  reviews   Review[]
+  comments  Comment[]
 
   @@map("users")
 }
@@ -102,8 +110,8 @@ model Movie {
   trailerUrl         String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  userId String
-  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade)
+  userId String?
+  user User? @relation(fields: [userId] , references: [id] , onDelete: Cascade)
 
   reviews   Review[]
   purchases Purchase[]
@@ -112,16 +120,38 @@ model Movie {
 }
 
 model Review {
-  id        String   @id @default(cuid())
+  id        String       @id @default(cuid())
   movieId   String
+  userId    String?      // Relation to User (Optional for migration)
   userName  String 
-  rating    Int 
+  rating    Int          // 1-10 stars logic in UI
   content   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isSpoiler Boolean      @default(false)
+  tags      String[]     @default([])
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
-  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movie     Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  
   @@map("reviews")
+}
+
+model Comment {
+  id        String       @id @default(cuid())
+  content   String
+  userId    String
+  reviewId  String
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
 }
 
 model Purchase {

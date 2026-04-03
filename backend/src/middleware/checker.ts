@@ -1,69 +1,69 @@
-// import type { NextFunction, Request, Response } from "express";
-// import { auth } from "../lib/auth";
+import type { NextFunction, Request, Response } from "express";
+import { auth } from "../lib/auth";
 
-// enum Role {
-//   USER,
-//   ADMIN
-// }
+// Match Prisma schema Role
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN"
+}
 
+// Extend Express Request to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        name: string;
+        role: Role;
+        emailVerified: boolean;
+      };
+    }
+  }
+}
 
-// // Extend Express Request to include user
-// declare global {
-//   namespace Express {
-//     interface Request {
-//       user?: {
-//         id: string;
-//         email: string;
-//         name: string;
-//         role: Role;
-//         emailVerified: boolean;
-//       };
-//     }
-//   }
-// }
+// Role-based auth middleware
+const checker = (...roles: Role[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Get session from BetterAuth
+      const session = await auth.api.getSession({
+        headers: req.headers as any,
+      });
 
-// // Role-based checker middleware
-// const checker = (...roles: Role[]) => {
-//   return async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       // Get session from BetterAuth
-//       const session = await auth.api.getSession({
-//         headers: req.headers as any,
-//       });
+      if (!session || !session.user) {
+        return res.status(401).json({
+          success: false,
+          message: "You are not authorized! Session not found.",
+        });
+      }
 
-//       if (!session || !session.user) {
-//         return res.status(401).json({
-//           success: false,
-//           message: "You are not authorized! from checker",
-//         });
-//       }
+      // Attach user info to request
+      req.user = {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name || "",
+        role: session.user.role as Role,
+        emailVerified: session.user.emailVerified,
+      };
 
-//       // Attach user info to request
-//       req.user = {
-//         id: session.user.id,
-//         email: session.user.email,
-//         name: session.user.name,
-//         role: session.user.role as Role,
-//         emailVerified: session.user.emailVerified,
-//       };
+      // Check roles if provided
+      if (roles.length && !roles.includes(req.user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden! You do not have permission.",
+        });
+      }
 
-//       // Check if user role is allowed
-//       if (roles.length && !roles.includes(req.user.role)) {
-//         return res.status(403).json({
-//           success: false,
-//           message: "Forbidden! You do not have permission.",
-//         });
-//       }
+      next();
+    } catch (error) {
+      console.error("Auth Middleware Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  };
+};
 
-//       next();
-//     } catch (error) {
-//       console.error("Auth Middleware Error:", error);
-//       res.status(500).json({
-//         success: false,
-//         message: "Internal server error",
-//       });
-//     }
-//   };
-// };
-
-// export default checker;
+export default checker;

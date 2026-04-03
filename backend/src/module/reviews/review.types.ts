@@ -1,3 +1,5 @@
+export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 export interface reviewType {
   id: string;
   userName: string;
@@ -6,4 +8,8 @@ export interface reviewType {
   createdAt: Date;
   updatedAt: Date;
   movieId: string;
+  status: ReviewStatus;
+  isSpoiler: boolean;
+  tags: string[];
+  userId: string;
 }

@@ -1,47 +1,70 @@
 import { prisma } from "../../lib/prisma";
-import type { reviewType } from "./review.types";
+import type { ReviewType, ReviewStatus } from "./review.types";
 
-const createReview = async (payload : reviewType) => {
-  console.log(payload);
-  const result = await prisma.review.create({
-    data: payload,
+const createReview = async (payload: ReviewType) => {
+  return await prisma.review.create({
+    data: {
+      ...payload,
+      status: "PENDING", // Force pending status for all new reviews
+    },
   });
-  return result;
 };
 
-const getReview = async () => {
-  const result = await prisma.review.findMany();
-  return result;
+const getReviews = async (isAdmin: boolean = false) => {
+  if (isAdmin) {
+    return await prisma.review.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  }
+  return await prisma.review.findMany({
+    where: { status: "APPROVED" },
+    orderBy: { createdAt: "desc" },
+  });
 };
-
 
 const getSingleReview = async (id: string) => {
-  const result = await prisma.review.findUnique({
+  return await prisma.review.findUnique({
     where: { id },
   });
-  return result;
 };
 
+const updateReviewStatus = async (id: string, status: ReviewStatus) => {
+  return await prisma.review.update({
+    where: { id },
+    data: { status },
+  });
+};
 
-const updateReview = async (id: string, payload: any) => {
-  const result = await prisma.review.update({
+const updateReview = async (id: string, userId: string, payload: Partial<ReviewType>) => {
+  // Only allow updating if the review is PENDING and owned by the user
+  const review = await prisma.review.findUnique({ where: { id } });
+  if (!review || review.userId !== userId || review.status !== "PENDING") {
+    throw new Error("Unauthorized or review already processed");
+  }
+  return await prisma.review.update({
     where: { id },
     data: payload,
   });
-  return result;
 };
 
-const deleteReview = async (id: string) => {
-  const result = await prisma.review.delete({
+const deleteReview = async (id: string, userId: string, isAdmin: boolean = false) => {
+  const review = await prisma.review.findUnique({ where: { id } });
+  if (!review) throw new Error("Review not found");
+
+  if (!isAdmin && (review.userId !== userId || review.status !== "PENDING")) {
+    throw new Error("Unauthorized or review already processed");
+  }
+
+  return await prisma.review.delete({
     where: { id },
   });
-  return result;
 };
 
 export const serviceReview = {
   createReview,
-  getReview,
+  getReviews,
   getSingleReview,
+  updateReviewStatus,
   updateReview,
   deleteReview,
 };
