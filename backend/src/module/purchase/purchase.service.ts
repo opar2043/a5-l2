@@ -8,7 +8,12 @@ const createPurchase = async (payload: IResult) => {
   return result;
 };
 const getPurchase = async () => {
-  return prisma.purchase.findMany();
+  return prisma.purchase.findMany({
+    include: {
+      user: true,
+      movie: true,
+    },
+  });
 };
 
 const getsinglePurchase = async (id: string) => {

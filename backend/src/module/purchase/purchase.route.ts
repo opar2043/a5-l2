@@ -4,10 +4,10 @@ import { purchasesController } from "./purchase.controller";
 
 const router = Router();
 
-router.post("/movies", purchasesController.createPurchase);
-router.get("/movies", purchasesController.getPurchase);
-router.get("/movies/:id", purchasesController.getSinglePurchase);
-router.delete("/movies/:id", purchasesController.deletePurchase);
-router.patch("/movies/:id", purchasesController.updatePurchase);
+router.post("/", purchasesController.createPurchase);
+router.get("/", purchasesController.getPurchase);
+router.get("/:id", purchasesController.getSinglePurchase);
+router.delete("/:id", purchasesController.deletePurchase);
+router.patch("/:id", purchasesController.updatePurchase);
 
-export const movieRouter = router;
+export const purchaseRouter = router;

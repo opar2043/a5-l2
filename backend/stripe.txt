@@ -1,0 +1,54 @@
+Implement Stripe Payment Integration (Payment Intents)
+This document outlines the plan for integrating the Stripe payment gateway using Payment Intents and Stripe Elements. This method allows you to build a fully customized payment form directly inside your Next.js application, rather than redirecting users to a Stripe-hosted checkout page.
+
+User Review Required
+IMPORTANT
+
+You will need active Stripe API Keys (STRIPE_SECRET_KEY and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) from your Stripe Dashboard (Test Mode).
+Webhooks are not included in this initial plan, but might be desired later to listen for the payment_intent.succeeded event.
+Proposed Changes
+Backend (backend/)
+Install the stripe package via npm: npm install stripe
+[MODIFY] .env
+Add STRIPE_SECRET_KEY=sk_test_...
+
+[NEW] 
+payment.service.ts
+Initialize the Stripe client: const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+Create a service method createPaymentIntent(amount).
+Inside the method, call await stripe.paymentIntents.create({ amount: amountInCents, currency: 'usd' }).
+Return the generated client_secret to the controller.
+[NEW] 
+payment.controller.ts
+Create a controller method to handle a POST request.
+Extract the total cost of the items/cart from the request body.
+Pass the calculated total to the service and respond with { clientSecret }.
+[NEW] 
+payment.route.ts
+Define a POST /create-payment-intent endpoint and link it to the controller.
+[MODIFY] Routes or Main App File
+Mount the payment.route.ts to your main express router (e.g., /api/payments).
+Frontend (movie-frontend/)
+Install Stripe libraries via npm: npm install @stripe/stripe-js @stripe/react-stripe-js
+[MODIFY] .env.local
+Add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+[NEW] CheckoutPage Component
+Make a POST request to earlier /api/payments/create-payment-intent upon loading the Checkout Page.
+Store the returned clientSecret in the component state.
+Load Stripe using loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY).
+Wrap the customized payment form within the <Elements stripe={stripePromise} options={{clientSecret}}> provider.
+[NEW] CheckoutForm Component
+Create a custom form component inside the Elements provider.
+Utilize the pre-built <PaymentElement /> from @stripe/react-stripe-js to collect user card details securely.
+On form submission (preventing default behavior), call stripe.confirmPayment({ elements, confirmParams: { return_url: "http://localhost:3000/success" } }).
+[NEW] Success Page
+Implement app/success/page.tsx to handle what the user sees upon successful transaction.
+Verification Plan
+Automated Tests
+Run npm run dev for both frontend and backend to ensure no build errors exist.
+Manual Verification
+Navigate to the custom checkout route in the frontend.
+Verify the custom payment form (from <PaymentElement />) loads correctly.
+Input test card details provided by Stripe (e.g. 4242 4242 4242 4242, any future date, any CVC).
+Verify you land on the Success page after completion.
